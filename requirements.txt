@@ -6,3 +6,6 @@ python-dotenv
 streamlit-mic-recorder
 SpeechRecognition
 pyhub
+streamlit-mic-recorder
+SpeechRecognition
+pydub
