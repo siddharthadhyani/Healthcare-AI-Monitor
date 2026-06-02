@@ -16,13 +16,14 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
 import os
-import io
 try:
     from dotenv import load_dotenv
     load_dotenv()
 except:
     pass
+import io
 
+load_dotenv()
 
 # ============================================================
 # PAGE CONFIG
@@ -114,16 +115,37 @@ st.markdown("""
     }
     .stButton > button:hover { opacity: 0.85; color: white; }
     .stTextArea textarea, .stTextInput input {
-        background: #1e293b !important;
-        color: #e2e8f0 !important;
-        border: 1px solid #334155 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #2dd4bf !important;
         border-radius: 12px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+    }
+    .stTextInput input::placeholder {
+        color: #94a3b8 !important;
     }
     .stNumberInput input {
-        background: #1e293b !important;
-        color: #e2e8f0 !important;
-        border: 1px solid #334155 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #2dd4bf !important;
         border-radius: 12px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+    }
+    .stSelectbox div[data-baseweb="select"] > div {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #2dd4bf !important;
+        border-radius: 12px !important;
+        font-size: 15px !important;
+        font-weight: 500 !important;
+    }
+    /* Label text */
+    .stTextInput label, .stNumberInput label, .stSelectbox label {
+        color: #2dd4bf !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -131,11 +153,10 @@ st.markdown("""
 # ============================================================
 # GROQ API KEY
 # ============================================================
-import os
-GROQ_API_KEY = os.getenv("GROQ_API_KEY") 
-if not GROQ_API_KEY: 
-    GROQ_API_KEY =st.secrets.get["GROQ_API_KEY"]
-
+try:
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY", "")
+except:
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 # ============================================================
 # SYSTEM PROMPT
 # ============================================================
@@ -207,19 +228,13 @@ def get_ai_response(user_message: str) -> tuple:
             messages.append(msg)
         messages.append({"role": "user", "content": user_message})
 
-        try:
-            response = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=messages,
             max_tokens=300,
             temperature=0.7
         )
-
-            reply = response.choices[0].message.content
-
-        except Exception as e:
-            st.error(f"Groq Error: {str(e)}")
-            return f"Error: {str(e)}", False
+        reply = response.choices[0].message.content
 
         st.session_state.groq_history.append({"role": "user", "content": user_message})
         st.session_state.groq_history.append({"role": "assistant", "content": reply})
@@ -552,37 +567,60 @@ with tab1:
         st.rerun()
 
     st.markdown("#### 🎤 Voice Assistant")
-    voice_ready = True
     try:
         from streamlit_mic_recorder import mic_recorder
         import speech_recognition as sr
         from pydub import AudioSegment
-    except ImportError:
-        voice_ready = False
 
-    if not voice_ready:
-        st.warning("Run: `pip install streamlit-mic-recorder SpeechRecognition pydub` then restart.")
-    else:
-        st.info("🎤 Click below, speak your health question — it auto-sends!")
         audio = mic_recorder(
             start_prompt="🎤 Click to Speak",
             stop_prompt="⏹️ Stop Recording",
             just_once=True,
             key="voice_input"
         )
+
         if audio and audio.get("bytes"):
             try:
-                transcript = transcribe_audio(audio["bytes"])
-                st.success(f"🗣️ You said: **{transcript}**")
+                webm = AudioSegment.from_file(
+                    io.BytesIO(audio["bytes"]), format="webm"
+                )
+                wav = io.BytesIO()
+                webm.export(wav, format="wav")
+                wav.seek(0)
+                recognizer = sr.Recognizer()
+                with sr.AudioFile(wav) as source:
+                    audio_data = recognizer.record(source)
+                transcript = recognizer.recognize_google(audio_data)
+
+                # Typing effect
+                st.markdown("🗣️ **You said:**")
+                words = transcript.split()
+                display = st.empty()
+                typed = ""
+                import time
+                for word in words:
+                    typed += word + " "
+                    display.markdown(
+                        f"<div style='background:#1e293b; padding:10px 14px;"
+                        f"border-radius:8px; color:#e2e8f0; font-size:15px'>"
+                        f"{typed}</div>",
+                        unsafe_allow_html=True
+                    )
+                    time.sleep(0.12)
+
                 add_message("user", transcript)
                 with st.spinner("🤖 Thinking..."):
                     reply, blocked = get_ai_response(transcript)
                 add_message("assistant", reply, blocked)
                 st.rerun()
+
             except sr.UnknownValueError:
-                st.warning("⚠️ Could not understand. Speak clearly and try again.")
+                st.warning("⚠️ Could not understand. Speak clearly.")
             except Exception as e:
                 st.error(f"⚠️ Voice error: {e}")
+
+    except ImportError:
+        st.warning("Run: `pip install streamlit-mic-recorder SpeechRecognition pydub`")
 
     st.markdown("#### ⚡ Quick Health Questions")
     quick_questions = [
@@ -595,7 +633,7 @@ with tab1:
     cols = st.columns(len(quick_questions))
     for i, q in enumerate(quick_questions):
         with cols[i]:
-            if st.button(q, key=f"quick_{i}", use_container_width=True):
+            if st.button(q, key=f"quick_{i}", width='stretch'):
                 add_message("user", q)
                 with st.spinner("🤖 Thinking..."):
                     reply, blocked = get_ai_response(q)
