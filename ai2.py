@@ -677,61 +677,7 @@ with tab1:
     }
     </script>
     """, height=160)
-    try:
-        from streamlit_mic_recorder import mic_recorder
-        import speech_recognition as sr
-        from pydub import AudioSegment
-
-        audio = mic_recorder(
-            start_prompt="🎤 Click to Speak",
-            stop_prompt="⏹️ Stop Recording",
-            just_once=True,
-            key="voice_input"
-        )
-
-        if audio and audio.get("bytes"):
-            try:
-                webm = AudioSegment.from_file(
-                    io.BytesIO(audio["bytes"]), format="webm"
-                )
-                wav = io.BytesIO()
-                webm.export(wav, format="wav")
-                wav.seek(0)
-                recognizer = sr.Recognizer()
-                with sr.AudioFile(wav) as source:
-                    audio_data = recognizer.record(source)
-                transcript = recognizer.recognize_google(audio_data)
-
-                # Typing effect
-                st.markdown("🗣️ **You said:**")
-                words = transcript.split()
-                display = st.empty()
-                typed = ""
-                import time
-                for word in words:
-                    typed += word + " "
-                    display.markdown(
-                        f"<div style='background:#1e293b; padding:10px 14px;"
-                        f"border-radius:8px; color:#e2e8f0; font-size:15px'>"
-                        f"{typed}</div>",
-                        unsafe_allow_html=True
-                    )
-                    time.sleep(0.12)
-
-                add_message("user", transcript)
-                with st.spinner("🤖 Thinking..."):
-                    reply, blocked = get_ai_response(transcript)
-                add_message("assistant", reply, blocked)
-                st.rerun()
-
-            except sr.UnknownValueError:
-                st.warning("⚠️ Could not understand. Speak clearly.")
-            except Exception as e:
-                st.error(f"⚠️ Voice error: {e}")
-
-    except ImportError:
-        st.warning("Run: `pip install streamlit-mic-recorder SpeechRecognition pydub`")
-
+    
     st.markdown("#### ⚡ Quick Health Questions")
     quick_questions = [
         "Is 80 bpm heart rate normal?",
