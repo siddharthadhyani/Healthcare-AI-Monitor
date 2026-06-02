@@ -568,7 +568,6 @@ with tab1:
 
     st.markdown("#### 🎤 Voice Assistant")
 
-    # Real-time word display (works on Streamlit Cloud)
     st.components.v1.html("""
     <div style='background:#0f172a; border:1px solid #1e293b;
                 border-radius:12px; padding:16px; margin-bottom:10px'>
@@ -589,12 +588,14 @@ with tab1:
                     min-height:44px; border:1px solid #334155; display:none'>
         </div>
     </div>
+
     <script>
     let recognition; let finalTranscript = '';
+
     function startVoice() {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SR) {
-            document.getElementById('voiceStatus').innerText = '❌ Use Chrome for this feature!';
+            document.getElementById('voiceStatus').innerText = '❌ Use Chrome browser!';
             return;
         }
         recognition = new SR();
@@ -602,37 +603,78 @@ with tab1:
         recognition.interimResults = true;
         recognition.lang = 'en-US';
         finalTranscript = '';
+
         const btn = document.getElementById('voiceBtn');
         const status = document.getElementById('voiceStatus');
         const textBox = document.getElementById('voiceText');
+
         btn.style.background = 'linear-gradient(135deg,#dc2626,#b91c1c)';
         btn.innerHTML = '⏹️';
         btn.onclick = stopVoice;
         status.innerText = '🔴 Listening... speak now';
         textBox.style.display = 'block';
+        textBox.innerHTML = '';
+
         recognition.onresult = function(event) {
             let interim = ''; finalTranscript = '';
             for (let i = 0; i < event.results.length; i++) {
-                if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                else interim += event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
             }
             textBox.innerHTML =
                 '<span style="color:#e2e8f0">' + finalTranscript + '</span>' +
                 '<span style="color:#94a3b8"><i>' + interim + '</i></span>';
         };
+
         recognition.onend = function() {
             btn.style.background = 'linear-gradient(135deg,#0f766e,#0369a1)';
-            btn.innerHTML = '🎤'; btn.onclick = startVoice;
-            status.innerText = finalTranscript ? '✅ Done! Now use mic below to send' : 'Click mic to speak';
+            btn.innerHTML = '🎤';
+            btn.onclick = startVoice;
+
+            if (finalTranscript.trim()) {
+                status.innerText = '⏳ Sending to AI...';
+                // Send to Streamlit via textarea
+                const ta = window.parent.document.querySelectorAll('textarea');
+                if (ta.length > 0) {
+                    const setter = Object.getOwnPropertyDescriptor(
+                        window.parent.HTMLTextAreaElement.prototype, 'value'
+                    ).set;
+                    setter.call(ta[0], finalTranscript.trim());
+                    ta[0].dispatchEvent(new Event('input', { bubbles: true }));
+
+                    // Auto click Send button
+                    setTimeout(function() {
+                        const buttons = window.parent.document.querySelectorAll('button');
+                        for (let b of buttons) {
+                            if (b.innerText.includes('Send')) {
+                                b.click();
+                                status.innerText = '✅ Sent!';
+                                break;
+                            }
+                        }
+                    }, 800);
+                }
+            } else {
+                status.innerText = 'Click mic to speak';
+            }
         };
+
         recognition.onerror = function(e) {
-            status.innerText = '⚠️ ' + e.error + ' — try Chrome!';
+            status.innerText = '⚠️ ' + e.error + ' — try again';
             btn.style.background = 'linear-gradient(135deg,#0f766e,#0369a1)';
-            btn.innerHTML = '🎤'; btn.onclick = startVoice;
+            btn.innerHTML = '🎤';
+            btn.onclick = startVoice;
         };
+
         recognition.start();
     }
-    function stopVoice() { if (recognition) recognition.stop(); }
+
+    function stopVoice() {
+        if (recognition) recognition.stop();
+    }
     </script>
     """, height=160)
     try:
