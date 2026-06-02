@@ -567,6 +567,74 @@ with tab1:
         st.rerun()
 
     st.markdown("#### 🎤 Voice Assistant")
+
+    # Real-time word display (works on Streamlit Cloud)
+    st.components.v1.html("""
+    <div style='background:#0f172a; border:1px solid #1e293b;
+                border-radius:12px; padding:16px; margin-bottom:10px'>
+        <div style='display:flex; align-items:center; gap:10px'>
+            <button onclick="startVoice()" id="voiceBtn"
+                style='background:linear-gradient(135deg,#0f766e,#0369a1);
+                       color:white; border:none; border-radius:50%;
+                       width:50px; height:50px; font-size:20px; cursor:pointer'>
+                🎤
+            </button>
+            <div id="voiceStatus" style='color:#94a3b8; font-size:13px'>
+                Click mic to speak
+            </div>
+        </div>
+        <div id="voiceText"
+             style='margin-top:12px; padding:12px; background:#1e293b;
+                    border-radius:8px; color:#e2e8f0; font-size:15px;
+                    min-height:44px; border:1px solid #334155; display:none'>
+        </div>
+    </div>
+    <script>
+    let recognition; let finalTranscript = '';
+    function startVoice() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+            document.getElementById('voiceStatus').innerText = '❌ Use Chrome for this feature!';
+            return;
+        }
+        recognition = new SR();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+        finalTranscript = '';
+        const btn = document.getElementById('voiceBtn');
+        const status = document.getElementById('voiceStatus');
+        const textBox = document.getElementById('voiceText');
+        btn.style.background = 'linear-gradient(135deg,#dc2626,#b91c1c)';
+        btn.innerHTML = '⏹️';
+        btn.onclick = stopVoice;
+        status.innerText = '🔴 Listening... speak now';
+        textBox.style.display = 'block';
+        recognition.onresult = function(event) {
+            let interim = ''; finalTranscript = '';
+            for (let i = 0; i < event.results.length; i++) {
+                if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
+                else interim += event.results[i][0].transcript;
+            }
+            textBox.innerHTML =
+                '<span style="color:#e2e8f0">' + finalTranscript + '</span>' +
+                '<span style="color:#94a3b8"><i>' + interim + '</i></span>';
+        };
+        recognition.onend = function() {
+            btn.style.background = 'linear-gradient(135deg,#0f766e,#0369a1)';
+            btn.innerHTML = '🎤'; btn.onclick = startVoice;
+            status.innerText = finalTranscript ? '✅ Done! Now use mic below to send' : 'Click mic to speak';
+        };
+        recognition.onerror = function(e) {
+            status.innerText = '⚠️ ' + e.error + ' — try Chrome!';
+            btn.style.background = 'linear-gradient(135deg,#0f766e,#0369a1)';
+            btn.innerHTML = '🎤'; btn.onclick = startVoice;
+        };
+        recognition.start();
+    }
+    function stopVoice() { if (recognition) recognition.stop(); }
+    </script>
+    """, height=160)
     try:
         from streamlit_mic_recorder import mic_recorder
         import speech_recognition as sr
