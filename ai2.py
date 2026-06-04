@@ -197,7 +197,19 @@ HEALTH_KEYWORDS = [
     "brain", "spine", "joint", "arthritis", "asthma", "migraine", "stroke",
     "normal", "rate", "level", "report", "test", "scan", "xray", "mri",
     "my heart", "my sugar", "my bp", "my health", "is it normal", "what is",
-    "how to", "food", "eat", "drink", "water", "supplement"
+    "how to", "food", "eat", "drink", "water", "supplement", "cardiology", 
+    "cardiologist", "orthopedics", "orthopedist", "neurology", "neurologist", 
+    "pediatrics", "pediatrician", "dermatology", "dermatologist", "gastroenterology", 
+    "gastroenterologist", "endocrinology", "endocrinologist", "pulmonology", 
+    "pulmonologist", "urology", "urologist", "gynecology", "gynecologist", "oncology", 
+    "oncologist", "radiology", "radiologist", "anesthesiology", "anesthesiologist", 
+    "psychiatry", "psychiatrist", "ophthalmology", "ophthalmologist", "otolaryngology", 
+    "otolaryngologist", "rheumatology", "rheumatologist", "nephrology", "nephrologist", 
+    "hematology", "hematologist", "immunology", "immunologist", "pathology", "pathologist", 
+    "geriatrics", "geriatrician", "podiatry", "podiatrist", "audiology", "audiologist", 
+    "obstetrics", "obstetrician", "neonatology", "neonatologist", "hepatology", 
+    "hepatologist", "epidemiology", "epidemiologist", "allergist", "surgeon", "physician", 
+    "nurse", "therapist", "pharmacist", "paramedic"
 ]
 
 def is_health_related(message: str) -> bool:
