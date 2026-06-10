@@ -286,8 +286,7 @@ def metric_card(label, value, unit, delta, color):
             {value}<span style="font-size:14px;color:#64748b"> {unit}</span>
         </div>
         <div class="metric-trend" style="color:{trend_color}">
-            {arrow} {abs(delta)} from yesterday
-        </div>
+</div></div>
     </div>
     """, unsafe_allow_html=True)
 
