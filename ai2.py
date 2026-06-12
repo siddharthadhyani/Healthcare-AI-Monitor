@@ -318,15 +318,7 @@ if "chat_history" not in st.session_state:
 if "groq_history" not in st.session_state:
     st.session_state.groq_history = []
 if "health_log" not in st.session_state:
-    st.session_state.health_log = [
-        {"Date": "Mon", "Heart Rate": 72, "Blood Pressure": 120, "Sugar Level": 90},
-        {"Date": "Tue", "Heart Rate": 75, "Blood Pressure": 122, "Sugar Level": 95},
-        {"Date": "Wed", "Heart Rate": 80, "Blood Pressure": 119, "Sugar Level": 100},
-        {"Date": "Thu", "Heart Rate": 78, "Blood Pressure": 121, "Sugar Level": 92},
-        {"Date": "Fri", "Heart Rate": 76, "Blood Pressure": 118, "Sugar Level": 97},
-        {"Date": "Sat", "Heart Rate": 74, "Blood Pressure": 117, "Sugar Level": 88},
-        {"Date": "Sun", "Heart Rate": 73, "Blood Pressure": 116, "Sugar Level": 91},
-    ]
+    st.session_state.health_log = []
 
 # ============================================================
 # WELCOME / REGISTRATION SCREEN
@@ -503,21 +495,23 @@ st.markdown(f"""
 # METRIC CARDS
 # ============================================================
 log    = st.session_state.health_log
-latest = log[-1]
-prev   = log[-2] if len(log) >= 2 else latest
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    metric_card("❤️ Heart Rate",     latest["Heart Rate"],     "bpm",
-                latest["Heart Rate"]     - prev["Heart Rate"],     "#f472b6")
-with col2:
-    metric_card("💉 Blood Pressure", latest["Blood Pressure"], "mmHg",
-                latest["Blood Pressure"] - prev["Blood Pressure"], "#38bdf8")
-with col3:
-    metric_card("🍬 Sugar Level",    latest["Sugar Level"],    "mg/dL",
-                latest["Sugar Level"]    - prev["Sugar Level"],    "#a78bfa")
+if log:
+    latest = log[-1]
+    prev   = log[-2] if len(log) >= 2 else latest
 
-st.markdown("---")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        metric_card("❤️ Heart Rate", latest["Heart Rate"], "bpm",
+                    latest["Heart Rate"] - prev["Heart Rate"], "#f472b6")
+    with col2:
+        metric_card("💉 Blood Pressure", latest["Blood Pressure"], "mmHg",
+                    latest["Blood Pressure"] - prev["Blood Pressure"], "#38bdf8")
+    with col3:
+        metric_card("🍬 Sugar Level", latest["Sugar Level"], "mg/dL",
+                    latest["Sugar Level"] - prev["Sugar Level"], "#a78bfa")
+else:
+    st.info("📋 No vitals logged yet. Use the sidebar to save your first reading!")
 
 # ============================================================
 # TABS
@@ -711,63 +705,140 @@ with tab1:
 # TAB 2: CHARTS
 # ----------------------------------------------------------
 with tab2:
-    df = pd.DataFrame(st.session_state.health_log)
-    st.markdown("### 📈 Weekly Health Trends")
 
-    fig = go.Figure()
-    for metric, color in [
-        ("Heart Rate","#f472b6"),
-        ("Blood Pressure","#38bdf8"),
-        ("Sugar Level","#a78bfa")
-    ]:
-        fig.add_trace(go.Scatter(
-            x=df["Date"], y=df[metric],
-            mode="lines+markers", name=metric,
-            line=dict(color=color, width=2), marker=dict(size=7)
-        ))
-    fig.update_layout(
-        plot_bgcolor="#0a0f1e", paper_bgcolor="#0a0f1e",
-        font=dict(color="#e2e8f0"),
-        xaxis=dict(gridcolor="#1e293b"),
-        yaxis=dict(gridcolor="#1e293b"),
-        legend=dict(bgcolor="#0f172a", bordercolor="#334155"),
-        hovermode="x unified", height=320,
-        margin=dict(l=10, r=10, t=20, b=10)
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    # First-time user experience
+    if len(st.session_state.health_log) == 0:
 
-    c1, c2, c3 = st.columns(3)
-    for col, metric, color in zip(
-        [c1, c2, c3],
-        ["Heart Rate", "Blood Pressure", "Sugar Level"],
-        ["#f472b6", "#38bdf8", "#a78bfa"]
-    ):
-        with col:
-            bar = px.bar(df, x="Date", y=metric, title=metric,
-                         color_discrete_sequence=[color])
-            bar.update_layout(
-                plot_bgcolor="#0a0f1e", paper_bgcolor="#0a0f1e",
-                font=dict(color="#e2e8f0", size=11),
-                height=200, margin=dict(l=5,r=5,t=30,b=5), showlegend=False
+        st.markdown("""
+        <div style="
+            background:#0f172a;
+            border:1px solid #1e293b;
+            border-radius:20px;
+            padding:40px;
+            text-align:center;
+            margin-top:30px;
+        ">
+            <h1 style="color:#2dd4bf;">
+                🩺 Welcome to AI Healthcare Monitor
+            </h1>
+
+            <p style="color:#94a3b8;font-size:16px;">
+                No health records found yet.
+            </p>
+
+            <br>
+
+            <p style="color:#e2e8f0;">
+                Start by logging your first vitals from the sidebar.
+            </p>
+
+            <br>
+
+            <div style="text-align:left;max-width:450px;margin:auto;color:#cbd5e1;">
+                ✅ Track Heart Rate<br>
+                ✅ Monitor Blood Pressure<br>
+                ✅ Monitor Sugar Levels<br>
+                ✅ View Weekly Health Trends<br>
+                ✅ AI Healthcare Assistant
+            </div>
+
+            <br>
+
+            <p style="color:#2dd4bf;font-weight:bold;">
+                ⬅️ Save your first vitals to unlock your dashboard
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    else:
+
+        df = pd.DataFrame(st.session_state.health_log)
+
+        st.markdown("### 📈 Weekly Health Trends")
+
+        fig = go.Figure()
+
+        for metric, color in [
+            ("Heart Rate","#f472b6"),
+            ("Blood Pressure","#38bdf8"),
+            ("Sugar Level","#a78bfa")
+        ]:
+            fig.add_trace(
+                go.Scatter(
+                    x=df["Date"],
+                    y=df[metric],
+                    mode="lines+markers",
+                    name=metric,
+                    line=dict(color=color, width=2),
+                    marker=dict(size=7)
+                )
             )
-            st.plotly_chart(bar, use_container_width=True)
 
-    st.markdown("### 📌 Normal Ranges")
-    ref = {
-        "Metric":       ["Heart Rate", "Blood Pressure", "Sugar Level"],
-        "Normal Range": ["60–100 bpm", "90–120 mmHg",   "70–100 mg/dL"],
-        "Your Latest":  [
-            f"{latest['Heart Rate']} bpm",
-            f"{latest['Blood Pressure']} mmHg",
-            f"{latest['Sugar Level']} mg/dL"
-        ],
-        "Status": [
-            "✅ Normal" if 60 <= latest["Heart Rate"]     <= 100 else "⚠️ Consult doctor",
-            "✅ Normal" if 90 <= latest["Blood Pressure"] <= 120 else "⚠️ Consult doctor",
-            "✅ Normal" if 70 <= latest["Sugar Level"]    <= 100 else "⚠️ Consult doctor",
-        ]
-    }
-    st.dataframe(pd.DataFrame(ref), use_container_width=True, hide_index=True)
+        fig.update_layout(
+            plot_bgcolor="#0a0f1e",
+            paper_bgcolor="#0a0f1e",
+            font=dict(color="#e2e8f0"),
+            xaxis=dict(gridcolor="#1e293b"),
+            yaxis=dict(gridcolor="#1e293b"),
+            legend=dict(bgcolor="#0f172a", bordercolor="#334155"),
+            hovermode="x unified",
+            height=320,
+            margin=dict(l=10, r=10, t=20, b=10)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        c1, c2, c3 = st.columns(3)
+
+        for col, metric, color in zip(
+            [c1, c2, c3],
+            ["Heart Rate", "Blood Pressure", "Sugar Level"],
+            ["#f472b6", "#38bdf8", "#a78bfa"]
+        ):
+            with col:
+                bar = px.bar(
+                    df,
+                    x="Date",
+                    y=metric,
+                    title=metric,
+                    color_discrete_sequence=[color]
+                )
+
+                bar.update_layout(
+                    plot_bgcolor="#0a0f1e",
+                    paper_bgcolor="#0a0f1e",
+                    font=dict(color="#e2e8f0", size=11),
+                    height=200,
+                    margin=dict(l=5,r=5,t=30,b=5),
+                    showlegend=False
+                )
+
+                st.plotly_chart(bar, use_container_width=True)
+
+        latest = st.session_state.health_log[-1]
+
+        st.markdown("### 📌 Normal Ranges")
+
+        ref = {
+            "Metric": ["Heart Rate", "Blood Pressure", "Sugar Level"],
+            "Normal Range": ["60–100 bpm", "90–120 mmHg", "70–100 mg/dL"],
+            "Your Latest": [
+                f"{latest['Heart Rate']} bpm",
+                f"{latest['Blood Pressure']} mmHg",
+                f"{latest['Sugar Level']} mg/dL"
+            ],
+            "Status": [
+                "✅ Normal" if 60 <= latest["Heart Rate"] <= 100 else "⚠️ Consult doctor",
+                "✅ Normal" if 90 <= latest["Blood Pressure"] <= 120 else "⚠️ Consult doctor",
+                "✅ Normal" if 70 <= latest["Sugar Level"] <= 100 else "⚠️ Consult doctor",
+            ]
+        }
+
+        st.dataframe(
+            pd.DataFrame(ref),
+            use_container_width=True,
+            hide_index=True
+        )
 
 # ----------------------------------------------------------
 # TAB 3: DATA LOG
@@ -786,7 +857,13 @@ with tab3:
     )
 
     st.markdown("### 📊 Summary Statistics")
-    st.dataframe(df_log.describe().round(2), use_container_width=True)
+    if not df_log.empty:
+        st.dataframe(
+            df_log.describe().round(2),
+            use_container_width=True
+    )
+    else:
+        st.info("📊 Statistics will appear after you save your first vitals.")
 
 # ============================================================
 # FOOTER
