@@ -709,49 +709,28 @@ with tab2:
     # First-time user experience
     if len(st.session_state.health_log) == 0:
 
-        st.markdown("""
-        <div style="
-            background:#0f172a;
-            border:1px solid #1e293b;
-            border-radius:20px;
-            padding:40px;
-            text-align:center;
-            margin-top:30px;
-        ">
-            <h1 style="color:#2dd4bf;">
-                🩺 Welcome to AI Healthcare Monitor
-            </h1>
+            st.info("📋 No health records found yet. Use the sidebar to save your first reading!")
 
-            <p style="color:#94a3b8;font-size:16px;">
-                No health records found yet.
-            </p>
+            st.markdown("""
+# 🩺 Welcome to AI Healthcare Monitor
 
-            <br>
+### What you can do
 
-            <p style="color:#e2e8f0;">
-                Start by logging your first vitals from the sidebar.
-            </p>
+✅ Track Heart Rate
 
-            <br>
+✅ Monitor Blood Pressure
 
-            <div style="text-align:left;max-width:450px;margin:auto;color:#cbd5e1;">
-                ✅ Track Heart Rate<br>
-                ✅ Monitor Blood Pressure<br>
-                ✅ Monitor Sugar Levels<br>
-                ✅ View Weekly Health Trends<br>
-                ✅ AI Healthcare Assistant
-            </div>
+✅ Monitor Sugar Levels
 
-            <br>
+✅ View Weekly Health Trends
 
-            <p style="color:#2dd4bf;font-weight:bold;">
-                ⬅️ Save your first vitals to unlock your dashboard
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+✅ AI Healthcare Assistant
 
+---
+
+### ⬅️ Save your first vitals to unlock your dashboard
+""")
     else:
-
         df = pd.DataFrame(st.session_state.health_log)
 
         st.markdown("### 📈 Weekly Health Trends")
@@ -784,8 +763,8 @@ with tab2:
             hovermode="x unified",
             height=320,
             margin=dict(l=10, r=10, t=20, b=10)
-        )
-
+            )
+        
         st.plotly_chart(fig, use_container_width=True)
 
         c1, c2, c3 = st.columns(3)
