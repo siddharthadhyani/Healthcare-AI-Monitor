@@ -85,6 +85,6 @@ streamlit run ai2.py
 
 ## 👨‍💻 Author
 
-Siddharth Adhyani
+Siddhartha Dhyani
 
 GitHub: https://github.com/siddharthadhyani
