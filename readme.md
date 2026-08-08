@@ -13,8 +13,8 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 * Health monitoring dashboard
 * Interactive charts and visualizations
 * Patient profile management
-* Groq AI integration
-* Responsive Streamlit interface
+* Groq AI Integration
+* Responsive Streamlit Interface
 
 ## 🛠️ Tech Stack
 
