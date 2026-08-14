@@ -2,7 +2,7 @@
 # 🩺 AI Smart Healthcare Monitoring System
 # Powered by Groq AI (Free & Fast)
 # ============================================================
-# INSTALL:
+# INSTALL::
 #   pip install streamlit groq plotly pandas python-dotenv
 #   pip install streamlit-mic-recorder SpeechRecognition pydub
 
