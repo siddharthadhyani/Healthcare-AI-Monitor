@@ -18,13 +18,13 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 
 ## 🛠️ Tech Stack
 
-* Python
-* Streamlit
-* Groq API
-* Pandas
-* Plotly
-* SpeechRecognition
-* Python Dotenv
+* Python.
+* Streamlit.
+* Groq API.
+* Pandas.
+* Plotly.
+* SpeechRecognition.
+* Python Dotenv.
 
 ## 📂 Project Structure
 
