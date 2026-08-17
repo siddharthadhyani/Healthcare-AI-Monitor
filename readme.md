@@ -9,7 +9,7 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 ## 📌 Features
 
 * AI-powered healthcare assistant.
-* Voice input support
+* Voice input support.
 * Health monitoring dashboard
 * Interactive charts and visualizations
 * Patient profile management
