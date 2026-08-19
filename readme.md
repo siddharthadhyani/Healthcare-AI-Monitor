@@ -68,7 +68,7 @@ Create a `.env` file:
 GROQ_API_KEY=YOUR_API_KEY
 ```
 
-### Run Application
+### Run Application.
 
 ```bash
 streamlit run ai2.py
