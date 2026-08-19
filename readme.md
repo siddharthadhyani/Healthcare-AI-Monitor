@@ -74,7 +74,7 @@ GROQ_API_KEY=YOUR_API_KEY
 streamlit run ai2.py
 ```
 
-## 🔮 Future improvements
+## 🔮 Future improvements.
 
 * User authentication
 * Health history storage
