@@ -77,7 +77,7 @@ streamlit run ai2.py
 ## 🔮 Future improvements.
 
 * User authentication.
-* Health history storage
+* Health history storage.
 * PDF health reports
 * BMI calculator
 * Water intake tracker
