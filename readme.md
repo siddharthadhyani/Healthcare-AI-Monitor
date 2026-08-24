@@ -18,7 +18,7 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 
 ## 🛠️ Tech Stack...
 
-* Python
+* Python.
 * Streamlit.
 * Groq API.
 * Pandas.
