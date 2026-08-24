@@ -16,7 +16,7 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 * Groq AI Integration.
 * Responsive Streamlit Interface.
 
-## 🛠️ Tech Stack.
+## 🛠️ Tech Stack..
 
 * Python
 * Streamlit.
