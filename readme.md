@@ -26,7 +26,7 @@ Live App: https://healthcare-ai-monitor-3dhs4fzvlappppauqowrjevr.streamlit.app
 * SpeechRecognition.
 * Python Dotenv.
 
-## 📂 Project Structure.
+## 📂 Project Structure..
 
 ```text
 Healthcare-AI-Monitor/
